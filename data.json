@@ -1,3 +1,12 @@
 {
-    "Categories": []
+    "Categories": [
+        {
+            "category": "mask",
+            "coordinate": "512 , 79 , 570 , 129"
+        },
+        {
+            "category": "maskssss",
+            "coordinate": "616 , 113 , 683 , 185"
+        }
+    ]
 }
