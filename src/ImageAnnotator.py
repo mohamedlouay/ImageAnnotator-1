@@ -182,25 +182,6 @@ def saveBoxData(categorie, x1, y1, x2, y2):
         id = createRectangleCanvas(x1, y1, x2, y2)
         # update data file
         data[id] = {"category": categorie, "x1": x1, "y1": y1, "x2": x2, "y2": y2}
-        # save this box into a new image file for the training phase
-        imagename = os.path.basename(filePath.name)
-        imagename = os.path.splitext(imagename)[0]
-        if pil_image.mode in ("RGBA", "P"):
-            im = pil_image.convert("RGB")
-
-        im.crop((int(x1), int(y1), int(x2), int(y2))).save(
-            "imgBoxes/"
-            + imagename
-            + "-bb-"
-            + x1
-            + "x"
-            + y1
-            + "-"
-            + x2
-            + "-"
-            + y2
-            + ".jpg"
-        )
 
         # show new entry
         showSelectedBoxe(id, data.get(id))
