@@ -33,9 +33,8 @@ pil_image = ""
 
 
 def chargeCategories():
-    categoriesList.append("face")
-    categoriesList.append("mask")
-    categoriesList.append("man")
+    categoriesList.append("Mask")
+    categoriesList.append("No-Mask")
 
 
 chargeCategories()
@@ -59,9 +58,9 @@ def open_file():
     data.clear()
 
     filePath = tkinter.filedialog.askopenfile(
-        mode="rb",
+        mode="rb",initialdir='../input images',
         title="Select an image",
-        filetypes=[("jpg file", "*.jpg"), ("png file", "*.png")],
+        filetypes=[ ("png file", "*.png"),("jpg file", "*.jpg")],
     )
 
     if filePath:
