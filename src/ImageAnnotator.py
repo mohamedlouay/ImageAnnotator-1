@@ -5,6 +5,7 @@ import tkinter.messagebox
 from shapely.geometry import box as shapelyBox
 import numpy as np
 import webbrowser
+import tkinter.font as tkFont
 import cv2 as cv
 from PIL import Image, ImageTk, ImageGrab
 import json
@@ -16,8 +17,8 @@ categoriesList = []
 data = {}
 updateId = {}
 
-imageWidth = 700
-imageheight = 700
+imageWidth = 300
+imageheight = 300
 filePath = ""
 categorie = ""
 x_start = 0
@@ -32,9 +33,8 @@ pil_image = ""
 
 
 def chargeCategories():
-    categoriesList.append("face")
-    categoriesList.append("mask")
-    categoriesList.append("man")
+    categoriesList.append("Mask")
+    categoriesList.append("No-Mask")
 
 
 chargeCategories()
@@ -58,9 +58,9 @@ def open_file():
     data.clear()
 
     filePath = tkinter.filedialog.askopenfile(
-        mode="rb",
+        mode="rb",initialdir='../input images',
         title="Select an image",
-        filetypes=[("jpg file", "*.jpg"), ("png file", "*.png")],
+        filetypes=[ ("png file", "*.png"),("jpg file", "*.jpg")],
     )
 
     if filePath:
@@ -100,7 +100,11 @@ def selectAbox():
 
 def createRectangleCanvas(x1, y1, x2, y2):
     global imageArea
-    return imageArea.create_rectangle(x1, y1, x2, y2, width=2)
+
+    rectangleID = imageArea.create_rectangle(x1, y1, x2, y2, width=2)
+    imageArea.create_text(x1,y1-10,text="box : " + str(rectangleID),anchor="w",tags="label"+str(rectangleID))
+
+    return rectangleID
 
 
 def createBoxElement(categorie, x_start, y_start, x_end, y_end):
@@ -177,9 +181,15 @@ def saveBoxData(categorie, x1, y1, x2, y2):
             "Overlap Error",
             " this box Overlap with other Boxes with more than 20% \n or the box surface is less than 40 pixels ",
         )
+    elif verifDimensions(int(x1), int(y1), int(x2), int(y2)) :
+
+        tkinter.messagebox.showerror(
+                "Bad Dimensions ",
+                " To Avoid classify outliers , you should select a box with sides between 120 and 180px \n for more details please see Documentation !",
+        )
     else:
         # create canavs rectangle
-        id = createRectangleCanvas(x1, y1, x2, y2)
+        id = createRectangleCanvas(int(x1), int(y1), int(x2), int(y2))
         # update data file
         data[id] = {"category": categorie, "x1": x1, "y1": y1, "x2": x2, "y2": y2}
 
@@ -198,21 +208,32 @@ def showSelectedBoxe(id, boxData):
     )
     oneSelectedBox.idTag = id
     info = tk.Label(oneSelectedBox, text=",".join(list(boxData.values())), bg="white")
-    updateButton = tk.Button(
-        oneSelectedBox,
-        text="update",
-        bg="#676FA3",
-        fg="white",
-        name=str(id),
-        command=lambda: updateOneBox(id, oneSelectedBox),
-    )
+    updateButton = tk.Button(oneSelectedBox,text="Update",bg="#676FA3",fg="white", name=str(id)
+                             ,command=lambda: updateOneBox(id, oneSelectedBox))
+    DeleteButton = tk.Button(oneSelectedBox, text="Delete", bg="#676FA3", fg="white"
+                             , command=lambda: deleteOneBox(id, oneSelectedBox))
+
     info.grid(row=0, column=0, sticky=tk.W)
     updateButton.grid(row=0, column=1)
+    DeleteButton.grid(row=0, column=2)
 
     # add one selected box to the frame selectedBoxes
     oneSelectedBox.pack()
     oneSelectedBox.columnconfigure(0, minsize=200)
-    oneSelectedBox.columnconfigure(1, minsize=100)
+    oneSelectedBox.columnconfigure(1, minsize=50)
+    oneSelectedBox.columnconfigure(2, minsize=50)
+
+def deleteOneBox(id, frameParent):
+    # Delete old rectangle in canvas
+    imageArea.delete(str(id))
+    # Delete label of old rectangle in canvas
+    imageArea.delete("label"+str(id))
+
+    # delete data from old dictionary data
+    data.pop(id)
+    # delete old boxelement
+    frameParent.destroy()
+
 
 
 def updateOneBox(id, frameParent):
@@ -230,8 +251,11 @@ def updateOneBox(id, frameParent):
     x_end = data.get(id).get("x2")
     y_end = data.get(id).get("y2")
 
-    # Delete old canvas
+    # Delete old rectangle in canvas
     imageArea.delete(str(id))
+    # Delete label of old rectangle in canvas
+    imageArea.delete("label"+str(id))
+
     # delete data from old dictionary data
     data.pop(id)
 
@@ -439,6 +463,10 @@ def replaceCategoryFn(newCategory, oldCategory, parent, operation):
 
     # destroy form
     parent.destroy()
+
+# verif if the boxes sides are between 120 and 180px to avoid classify outliers
+def verifDimensions(XA1, YA1, XA2, YA2):
+    return  ((XA2-XA1) <100) or ((XA2-XA1) > 300 ) or ((YA2-YA1) <100) or ((YA2-YA1) > 300)
 
 
 # determine if two boxes overlap or not and how much the overlap
