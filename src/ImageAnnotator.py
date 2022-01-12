@@ -58,7 +58,7 @@ def open_file():
     data.clear()
 
     filePath = tkinter.filedialog.askopenfile(
-        mode="rb",initialdir='../input images',
+        mode="rb",initialdir='../inputImages',
         title="Select an image",
         filetypes=[ ("png file", "*.png"),("jpg file", "*.jpg")],
     )
