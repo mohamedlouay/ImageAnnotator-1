@@ -3,6 +3,8 @@ from tkinter import ttk
 import tkinter.filedialog
 import tkinter.messagebox
 from shapely.geometry import box as shapelyBox
+from tensorflow import keras
+from sklearn.preprocessing import LabelEncoder
 import numpy as np
 import webbrowser
 import tkinter.font as tkFont
@@ -58,7 +60,7 @@ def open_file():
     data.clear()
 
     filePath = tkinter.filedialog.askopenfile(
-        mode="rb",initialdir='../inputImages',
+        mode="rb",initialdir='../img/dataset',
         title="Select an image",
         filetypes=[ ("png file", "*.png"),("jpg file", "*.jpg")],
     )
@@ -497,6 +499,60 @@ def verifOverlap(XA1, YA1, XA2, YA2):
 
     return isOverlap
 
+def PredictImage():
+    predict(filePath,'category')
+
+
+
+def predict(filePath , mode):
+    green =  '\033[1;37;42m'
+    red =    '\033[1;37;41m'
+    import cv2
+    import numpy as np
+    imageWidth = 64
+    imageHeight = 64
+
+    #load model
+
+    model = keras.models.load_model('my_model')
+    model.load_weights("weights.h5")
+    label_encoder = LabelEncoder()
+    label_encoder.classes_ = np.load(r'C:\Users\autre\Desktop\nnl2\classes.npy')
+
+    imgOriginal = cv.cvtColor(np.array(pil_image), cv.COLOR_RGB2BGR)
+    img = np.asarray(imgOriginal)
+    img = cv2.resize(img, (imageWidth, imageHeight))
+    img = img / 255
+    img=img.reshape(1,imageWidth,imageWidth,3)
+
+
+
+
+    prediction = model.predict(img)
+    if(mode == "category"):
+
+        probVal = np.amax(model.predict(img))
+
+        category = label_encoder.inverse_transform([int(np.argmax(prediction[0]))])[0]
+        print(category)
+        if category == 'without_mask' :
+            colortext =(0,0,220)
+        else :
+
+            colortext =(0,245,128)
+
+        cv2.putText(imgOriginal,str(category) +" "+str(probVal),(0,50),cv2.FONT_HERSHEY_COMPLEX,1,colortext,2)
+
+    elif(mode == "probabilites"):
+        probabilites = {}
+        i = 0
+        for probability in prediction[0]:
+            probabilites[label_encoder.inverse_transform([int(prediction[0][i])])[0]]=str(round(float("{:.8f}".format(float(probability))), 2) * 100)+'%'
+
+            i += 1
+        print(probabilites)
+    else:
+        print("Mode not recognized")
 
 # windows
 app = tk.Tk()
@@ -565,7 +621,23 @@ help = tk.Button(
     bg="#676FA3",
     command=lambda: webbrowser.open_new("Documentation.pdf"),
 )
+
+
 help.pack(ipadx=200, ipady=10)
+
+
+
+predictBtn = tk.Button(
+    leftFrame,
+    text="Predict this image",
+    fg="white",
+    bg="#676FA3",
+    command=lambda: PredictImage(),
+)
+
+
+predictBtn.pack(ipadx=200, ipady=10)
+
 
 # middleFrame
 imageArea = tk.Canvas(
