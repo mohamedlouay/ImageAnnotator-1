@@ -1,5 +1,6 @@
 # ImageAnnotator + CNN Model
-NNL Project, Image Annotator
+NNL Project
+SAMY Mokhtar, BELHASSEN Mohamed, ALAMI Omar
 ## Table of contents
 1. [Prerequisites for Project](#prerequisites-for-The-Project)
 
