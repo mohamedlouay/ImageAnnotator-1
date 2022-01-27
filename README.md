@@ -8,3 +8,9 @@ NNL Project, Image Annotator
 $ pip install opencv-python
 $ pip install --upgrade tensorflow
 ```
+# The annotations file in src as well, it is called by the image generator script to get the smaller images
+
+# The folder my_model in src contains the saved version of the model
+
+# Link to the folder img with the full data-set
+https://drive.google.com/file/d/1qRpNm1vzjofp2DKb-sDwAwpJqpEhUZge/view?usp=sharing
