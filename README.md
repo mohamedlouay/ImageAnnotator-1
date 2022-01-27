@@ -1,4 +1,4 @@
-# ImageAnnotator
+# ImageAnnotator + CNN Model
 NNL Project, Image Annotator
 ## Table of contents
 1. [Prerequisites for Project](#prerequisites-for-The-Project)
